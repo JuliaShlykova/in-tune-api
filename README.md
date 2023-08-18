@@ -10,7 +10,7 @@ This project is the part of the [TOP project: Odin-Book](https://www.theodinproj
 - create and delete posts
 - create and delete comments
 ## Data Models
-![Data model](data-models.png)
+![Data model](data-models.svg)
 ## Technologies used
 - NodeJS
 - Express
