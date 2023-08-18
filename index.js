@@ -36,9 +36,6 @@ app.use('/posts', postRouter);
 app.use('/user', userRouter);
 
 app.use('/auth', authRouter);
-app.get('/protected', passport.authenticate('jwt', { session: false }), (req, res) => {
-  res.send('You have accessed a protected route!');
-})
 
 app.use((req, res) => {
   res.sendStatus(404);

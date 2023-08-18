@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const { body, validationResult } = require('express-validator');
 const { getToken } = require('../utils/jwt');
 const router = express.Router();
+const passport = require('passport');
 
 const User = require('../models/User');
 
@@ -89,5 +90,21 @@ router.post('/login', async (req, res) => {
     res.sendStatus(500);
   }
 })
+
+router.get('/google', passport.authenticate('google', {scope: ['profile', 'email'], session: false}));
+
+router.get('/google/callback', (req, res) => {
+  passport.authenticate( 'google', {
+    session: false
+  }, (err, user) => {
+    if (!user) {
+      return res.sendStatus(400);
+    }
+    const token = getToken({userId: user._id});
+
+    res.status(200).json({ message: "Logged in successfully", token });
+  })(req, res)
+}
+);
 
 module.exports = router;

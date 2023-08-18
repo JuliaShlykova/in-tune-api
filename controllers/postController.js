@@ -1,8 +1,10 @@
 const { body, validationResult } = require('express-validator');
 const Post = require('../models/Post');
 const User = require('../models/User');
+const Comment = require('../models/Comment');
 
 exports.getPublicPosts = async (req, res, next) => {
+  console.log('req.isAuthenticated()', req.isAuthenticated());
   try {
     const publicPosts = await Post
       .find({private: false})
@@ -86,7 +88,7 @@ exports.likePost = async (req, res, next) => {
 
 exports.deletePost = async (req, res, next) => {
   try {
-    await Post.findByIdAndDelete(req.params.postId);
+    await Promise.all([Post.findByIdAndDelete(req.params.postId), Comment.deleteMany({post: req.params.postId})]);
     res.sendStatus(200);
   } catch(err) {
     res.status(500).json({error: err.message});
