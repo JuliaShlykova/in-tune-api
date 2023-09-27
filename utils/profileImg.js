@@ -3,7 +3,6 @@ const imageKit = require('../configs/storage.config');
 exports.removeProfileImg = (file) => {
   imageKit.deleteFile(file, function(error, result) {
     if(error) console.log(error);
-    else console.log(result);
   })
 }
 
