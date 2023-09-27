@@ -7,8 +7,8 @@ const Post = require('../models/Post');
 
 exports.getProfile = async (req, res, next) => {
   try {
-    let userInfo = await User.findById(req.params.userId, '-friends -email -password').lean();
-    const posts = await Post.find({author: req.params.userId});
+    let userInfo = await User.findById(req.params.userId, '-friends -email -password');
+    const posts = await Post.find({author: req.params.userId}).sort({'createdAt':-1});
     res.status(200).json({user: userInfo, posts});
   } catch(err) {
     res.status(500).json({error: err.message});
@@ -45,7 +45,9 @@ exports.editProfile = [
       const { location, dateOfBirth, occupation, hobbies } = req.body;
       const profileInfoUpdated = { location, dateOfBirth, occupation, hobbies };
       if (profileInfoUpdated) {
-        await User.findByIdAndUpdate(req.user._id, {profileInfo: profileInfoUpdated})
+        const updUser = await User.findByIdAndUpdate(req.user._id, {profileInfo: profileInfoUpdated}, {new: true})
+        res.status(200).json({updUser});
+        return;
       }
       res.sendStatus(200);
     } catch(err) {
@@ -85,7 +87,7 @@ exports.uploadProfileImg = [
       currentUser.profileImgId = fileResponse.fileId;
       currentUser.profileImgUrl = fileResponse.url;
       await currentUser.save();
-      res.sendStatus(200);
+      res.status(200).json({profileImgUrl: currentUser.profileImgUrl});
     } catch(err) {
       res.status(500).json({error: err.message});
     }
@@ -116,7 +118,6 @@ exports.getFriendsList = async (req, res, next) => {
       .findById(req.user._id, 'friends')
       .populate('friends.user', 'firstName lastName profileImgUrl')
       .lean();
-    console.log('current user: ', currentUser);
     const requests = currentUser.friends.filter(friend => friend.status==='Friend').map(friend=>friend.user)
     res.status(200).json({requestedUsers: requests});
   } catch(err) {
@@ -231,3 +232,16 @@ exports.acceptFriendRequest = async (req, res, next) => {
   }
 }
 
+exports.getFriendStatus = async (req, res, next) => {
+  try {
+    const friendId = req.params.friendId;
+    const currentUser = await User.findById(req.user._id);
+    const friendIndex = currentUser.friends.findIndex(friend => friend.user == friendId);
+    if (friendIndex === -1) {
+      return res.status(200).json({status: 'Unknown'});
+    }
+    res.status(200).json({status: currentUser.friends[friendIndex].status});
+  } catch(err) {
+    res.status(500).json({error: err.message});
+  }
+}

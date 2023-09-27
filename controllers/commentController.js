@@ -5,9 +5,8 @@ exports.getComments = async (req, res, next) => {
   try {
     const comments = await Comment
       .find({'post': req.params.postId})
-      .sort({'createdAt': 1})
-      .populate('author', 'firstName lastName')
-      .lean();
+      .sort({'createdAt': -1})
+      .populate('author', 'firstName lastName profileImgUrl');
     res.status(200).json({comments});
   } catch(err) {
     res.status(500).json({error: err.message});
@@ -40,10 +39,11 @@ exports.createComment = [
 
 exports.likeComment = async (req, res, next) => {
   try {
-    await Comment.findByIdAndUpdate(
+    const updComment = await Comment.findByIdAndUpdate(
       req.params.commentId, 
-      {$push: {'likes': req.user._id}});
-    res.sendStatus(200);
+      {$push: {'likes': req.user._id}},
+      {new: true});
+    res.status(200).json({likeCount: updComment.likes.length});
   } catch(err) {
     res.status(500).json({error: err.message});
   }

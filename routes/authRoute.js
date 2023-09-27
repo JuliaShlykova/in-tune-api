@@ -8,7 +8,7 @@ const passport = require('passport');
 
 const User = require('../models/User');
 
-router.post('/sign-up', 
+router.post('/signup', 
   body('firstName')
   .trim()
   .isLength({min: 1})
@@ -60,7 +60,7 @@ router.post('/sign-up',
       const newUser = new User({ email, firstName, lastName, password: hashedPassword });
       await newUser.save();
       const token = getToken({userId: newUser._id});
-      res.status(200).json({ message: 'User registered successfully', token });
+      res.status(200).json({ message: 'User registered successfully', token, userId: newUser._id});
     } catch(err) {
       console.log(err.message);
       res.sendStatus(500);
@@ -84,7 +84,7 @@ router.post('/login', async (req, res) => {
 
     const token = getToken({userId: user._id});
 
-    res.status(200).json({ message: "Logged in successfully", token });
+    res.status(200).json({ message: "Logged in successfully", token, userId: user._id});
   } catch(err) {
     console.log(err.message);
     res.sendStatus(500);
@@ -101,8 +101,9 @@ router.get('/google/callback', (req, res) => {
       return res.sendStatus(400);
     }
     const token = getToken({userId: user._id});
-
-    res.status(200).json({ message: "Logged in successfully", token });
+    res.cookie('token', token);
+    res.cookie('user', user._id.toString());
+    res.redirect(process.env.HOST_URL);
   })(req, res)
 }
 );

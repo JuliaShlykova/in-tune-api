@@ -14,7 +14,8 @@ const googleOpts = {
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
   callbackURL: "http://localhost:5000/auth/google/callback",
-  passReqToCallback: true
+  passReqToCallback: true,
+  proxy: true
 }
 
 module.exports = passport => {
@@ -36,6 +37,7 @@ module.exports = passport => {
         return done(null, {_id: user._id});
       }
       const newUser = new User({
+        googleId: profile.id,
         email: profile.emails[0].value,
         firstName: profile.name.givenName,
         lastName: profile.name.familyName,

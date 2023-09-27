@@ -19,7 +19,8 @@ require('./configs/passport.config')(passport);
 const app = express();
 
 app.use(cors({
-  'origin': '*'
+  origin: '*',
+  credentials: true
 }));
 app.use(helmet());
 app.use(compression());

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { uploadProfileImg, editProfile, getProfile, getFriendsList, getRequestsList, getSentRequestsList, getSuggestedUsers, sendFriendRequest, acceptFriendRequest, deleteProfileImg } = require('../controllers/userController');
+const { uploadProfileImg, editProfile, getProfile, getFriendsList, getRequestsList, getSentRequestsList, getSuggestedUsers, sendFriendRequest, acceptFriendRequest, deleteProfileImg, getFriendStatus } = require('../controllers/userController');
 const authentication = require('../middlewares/authentication');
 
 router.use(authentication)
@@ -14,5 +14,6 @@ router.get('/friend-suggestions', getSuggestedUsers);
 router.get('/:userId/profile', getProfile);
 router.post('/:friendId/send-friend-request', sendFriendRequest);
 router.post('/:friendId/accept-friend-request', acceptFriendRequest);
+router.get('/:friendId/status', getFriendStatus);
 
 module.exports = router;

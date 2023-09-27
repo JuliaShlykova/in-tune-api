@@ -14,7 +14,7 @@ const commentSchema = new Schema({
 });
 
 commentSchema.virtual('formatted_timestamp').get(function(){
-  return DateTime.fromJSDate(this.updatedAt).toLocaleString(DateTime.DATETIME_MED);
+  return DateTime.fromJSDate(this.createdAt).toLocaleString(DateTime.DATETIME_MED);
 })
 
 module.exports = mongoose.model('Comment', commentSchema);

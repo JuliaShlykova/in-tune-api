@@ -4,14 +4,12 @@ const User = require('../models/User');
 const Comment = require('../models/Comment');
 
 exports.getPublicPosts = async (req, res, next) => {
-  console.log('req.isAuthenticated()', req.isAuthenticated());
   try {
     const publicPosts = await Post
       .find({private: false})
-      .sort({createdAt: 1})
+      .sort({createdAt: -1})
       .select('-__v -private')
-      .populate('author', 'firstName lastName')
-      .lean();
+      .populate('author', 'firstName lastName profileImgUrl');
     res.status(200).json({requestedPosts: publicPosts});
   } catch(err) {
     res.status(500).json({error: err.message});
@@ -24,10 +22,9 @@ exports.getFriendsPosts = async (req, res, next) => {
     const curUserFriends = currentUser['friends'].map(friend => friend.user);
     const privatePosts = await Post
       .find({private: true, author: {$in: [...curUserFriends, req.user._id]}})
-      .sort({createdAt: 1})
+      .sort({createdAt: -1})
       .select('-__v -private')
-      .populate('author', 'firstName lastName')
-      .lean();
+      .populate('author', 'firstName lastName profileImgUrl');
     res.status(200).json({requestedPosts: privatePosts});
   } catch(err) {
     res.status(500).json({error: err.message});
@@ -68,7 +65,8 @@ exports.createPost = [
       const {text, private} = req.body;
       const newPost = new Post({text, private, author: req.user._id});
       await newPost.save();
-      res.status(200).json({post: newPost});
+      const usersPosts = await Post.find({author: req.user._id}).sort({'createdAt':-1});
+      res.status(200).json({posts: usersPosts});
     } catch(err) {
       res.status(500).json({error: err.message});
     }
@@ -89,7 +87,8 @@ exports.likePost = async (req, res, next) => {
 exports.deletePost = async (req, res, next) => {
   try {
     await Promise.all([Post.findByIdAndDelete(req.params.postId), Comment.deleteMany({post: req.params.postId})]);
-    res.sendStatus(200);
+    const usersPosts = await Post.find({author: req.user._id}).sort({'createdAt':-1});
+    res.status(200).json({posts: usersPosts});
   } catch(err) {
     res.status(500).json({error: err.message});
   }
