@@ -102,12 +102,12 @@ router.get('/google/callback', (req, res) => {
     }
     const token = getToken({userId: user._id});
     res.cookie('token', token, {
-      domain: '.in-tune-frontend.vercel.app',
+      // domain: '.in-tune-frontend.vercel.app',
       sameSite: false,
       httpOnly: true
     });
     res.cookie('user', user._id.toString(), {
-      domain: '.in-tune-frontend.vercel.app',
+      // domain: '.in-tune-frontend.vercel.app',
       sameSite: false,
       httpOnly: true
     });
