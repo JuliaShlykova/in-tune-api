@@ -101,8 +101,14 @@ router.get('/google/callback', (req, res) => {
       return res.sendStatus(400);
     }
     const token = getToken({userId: user._id});
-    res.cookie('token', token);
-    res.cookie('user', user._id.toString());
+    res.cookie('token', token, {
+      domain: 'in-tune-frontend.vercel.app',
+      sameSite: 'none'
+    });
+    res.cookie('user', user._id.toString(), {
+      domain: 'in-tune-frontend.vercel.app',
+      sameSite: 'none'
+    });
     res.redirect(process.env.HOST_URL);
   })(req, res)
 }
